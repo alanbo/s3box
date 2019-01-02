@@ -1,0 +1,14 @@
+{
+    "auth": {
+        "cognitob88ecd08": {
+            "service": "Cognito",
+            "providerPlugin": "awscloudformation"
+        }
+    },
+    "storage": {
+        "s3box": {
+            "service": "S3",
+            "providerPlugin": "awscloudformation"
+        }
+    }
+}
