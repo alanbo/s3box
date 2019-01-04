@@ -2,8 +2,15 @@ import React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
+import Amplify from 'aws-amplify';
+import amplify from './aws-exports';
+import { withAuthenticator } from 'aws-amplify-react-native';
 
-export default class App extends React.Component {
+Amplify.configure(amplify);
+
+
+
+class App extends React.Component {
   state = {
     isLoadingComplete: false,
   };
@@ -60,3 +67,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+
+export default withAuthenticator(App);

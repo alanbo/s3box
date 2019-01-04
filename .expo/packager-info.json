@@ -1,9 +1,9 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": 19000,
-  "packagerPort": 19001,
-  "packagerPid": 17149,
+  "expoServerPort": null,
+  "packagerPort": null,
+  "packagerPid": null,
   "expoServerNgrokUrl": "https://nr-ehg.anonymous.s3box.exp.direct",
   "packagerNgrokUrl": "https://packager.nr-ehg.anonymous.s3box.exp.direct",
-  "ngrokPid": 17165
+  "ngrokPid": 2046
 }
