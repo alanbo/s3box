@@ -1,7 +1,7 @@
 {
-  "hostType": "localhost",
+  "hostType": "lan",
   "lanType": "ip",
   "dev": true,
   "minify": false,
-  "urlRandomness": "nr-ehg"
+  "urlRandomness": "nu-zjf"
 }
