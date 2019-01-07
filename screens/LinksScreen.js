@@ -48,36 +48,27 @@ export default class LinksScreen extends React.Component {
   // this handles the image upload to S3
   _handleImagePicked = async (pickerResult) => {
     const imageName = pickerResult.uri.replace(/^.*[\\\/]/, '');
-    console.log(imageName);
     const access = { level: "private", contentType: 'image/jpeg' };
     const imageData = await fetch(pickerResult.uri);
     const blobData = await imageData.blob();
     const encoded = URL.createObjectURL(blobData);
-
-    console.log(typeof imageData);
-    console.log(Object.keys(imageData));
-
     const s3data = new Buffer(encoded, 'base64');
 
     try {
       await Storage.put(imageName, s3data, access);
       this.getList();
-      console.log(`stored ${imageName}`);
     } catch (err) {
       console.log('error: ', err)
     }
   }
 
   async addFile() {
-    console.log('adding');
     const options = {
       mediaTypes: 'All',
       allowsEditing: true
     };
 
     const { uri } = await ImagePicker.launchImageLibraryAsync(options);
-
-    console.log(uri);
   }
 
   renderList() {
