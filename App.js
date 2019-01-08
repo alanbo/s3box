@@ -5,10 +5,10 @@ import AppNavigator from './navigation/AppNavigator';
 import Amplify from 'aws-amplify';
 import amplify from './aws-exports';
 import { withAuthenticator } from 'aws-amplify-react-native';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
 Amplify.configure(amplify);
-
-
 
 class App extends React.Component {
   state = {
@@ -26,10 +26,12 @@ class App extends React.Component {
       );
     } else {
       return (
-        <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
+        <Provider store={store}>
+          <View style={styles.container}>
+            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+            <AppNavigator />
+          </View>
+        </Provider>
       );
     }
   }
