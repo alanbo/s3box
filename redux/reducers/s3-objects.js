@@ -5,7 +5,7 @@ import {
 } from '../actions/types';
 
 
-function s3List(state = {}, action) {
+function s3List(state = [], action) {
 
   switch (action.type) {
     case get_s3_list:

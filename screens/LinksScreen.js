@@ -4,32 +4,16 @@ import { Storage } from 'aws-amplify';
 import { ImagePicker, Permissions } from 'expo';
 import { Buffer } from 'buffer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { connect } from 'react-redux';
+import { getS3List } from '../redux/actions';
 
-export default class LinksScreen extends React.Component {
+class LinksScreen extends React.Component {
   static navigationOptions = {
     title: 'Links',
   };
 
-  state = {
-    files: []
-  }
-
-  uploadFile() {
-    let file = 'My upload text';
-    let name = 'myFile.txt';
-    const access = { level: 'private' }; // note the access path
-    return Storage.put(name, file, access)
-  }
-
-  async getList() {
-    const path = '';
-    const access = { level: 'private' };
-    const files = await Storage.list(path, access);
-    this.setState({ files });
-  }
-
   async componentDidMount() {
-    this.getList();
+    this.props.getS3List();
   }
 
   _pickImage = async () => {
@@ -56,7 +40,7 @@ export default class LinksScreen extends React.Component {
 
     try {
       await Storage.put(imageName, s3data, access);
-      this.getList();
+      this.props.getS3List();
     } catch (err) {
       console.log('error: ', err)
     }
@@ -72,7 +56,7 @@ export default class LinksScreen extends React.Component {
   }
 
   renderList() {
-    return this.state.files.map(file => (
+    return this.props.files.map(file => (
       <View key={file.key} style={styles.listItem}>
         <MaterialCommunityIcons name='file' size={32} color='grey' />
         <Text style={styles.filename}>{file.key}</Text>
@@ -97,6 +81,14 @@ export default class LinksScreen extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    files: state.s3_objects
+  }
+}
+
+export default connect(mapStateToProps, { getS3List })(LinksScreen);
 
 const styles = StyleSheet.create({
   container: {
