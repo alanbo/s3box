@@ -1,13 +1,14 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import { Storage } from 'aws-amplify';
 import { ImagePicker, Permissions } from 'expo';
 import { Buffer } from 'buffer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
-import { getS3List } from '../redux/actions';
+import { getS3List } from '../../redux/actions';
+import styles from './styles';
 
-class LinksScreen extends React.Component {
+class FilesScreen extends React.Component {
   static navigationOptions = {
     title: 'Links',
   };
@@ -88,30 +89,5 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, { getS3List })(LinksScreen);
+export default connect(mapStateToProps, { getS3List })(FilesScreen);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 15,
-    backgroundColor: '#fff',
-    paddingRight: 10,
-    paddingLeft: 10
-  },
-  addFileBtn: {
-    alignSelf: 'flex-end',
-    marginBottom: 20
-  },
-  listItem: {
-    height: 50,
-    padding: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  filename: {
-    flex: 4,
-    paddingLeft: 20,
-    paddingRight: 20
-  }
-});
