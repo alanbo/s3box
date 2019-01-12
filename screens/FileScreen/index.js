@@ -7,8 +7,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
 import { getS3List } from '../../redux/actions';
 import styles from './styles';
+import * as R from 'ramda';
 
 class FilesScreen extends React.Component {
+  state = {
+    path: ''
+  }
+
   static navigationOptions = {
     title: 'Links',
   };
@@ -57,13 +62,34 @@ class FilesScreen extends React.Component {
   }
 
   renderList() {
-    return this.props.files.map(file => (
-      <View key={file.key} style={styles.listItem}>
-        <MaterialCommunityIcons name='file' size={32} color='grey' />
-        <Text style={styles.filename}>{file.key}</Text>
-        <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
-      </View>
-    ));
+    return this.props.files
+      .filter(file => R.startsWith(this.state.path, file.key))
+      .filter(file => file.key !== this.state.path)
+      .map(file => {
+        const is_folder = R.endsWith('/', file.key);
+
+        return (<TouchableOpacity
+          key={file.key}
+          style={styles.listItem}
+          onPress={() => this.onItemClick(file.key, is_folder)}
+        >
+          {
+            is_folder
+              ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
+              : <MaterialCommunityIcons name='file' size={32} color='grey' />
+          }
+          <Text style={styles.filename}>{file.key}</Text>
+          <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
+        </TouchableOpacity>)
+      });
+  }
+
+  onItemClick(path, is_folder) {
+    if (is_folder) {
+      this.setState({ path });
+    } else {
+      console.log(path);
+    }
   }
 
   render() {
