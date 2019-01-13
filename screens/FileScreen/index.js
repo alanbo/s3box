@@ -10,12 +10,11 @@ import styles from './styles';
 import * as R from 'ramda';
 
 class FilesScreen extends React.Component {
-  state = {
-    path: ''
-  }
-
-  static navigationOptions = {
-    title: 'Links',
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: `files/${navigation.getParam('path') || ''}` || 'files/',
+      headerBackTitle: null
+    };
   };
 
   async componentDidMount() {
@@ -62,11 +61,17 @@ class FilesScreen extends React.Component {
   }
 
   renderList() {
+    const path = this.props.navigation.getParam('path') || '';
+
     return this.props.files
-      .filter(file => R.startsWith(this.state.path, file.key))
-      .filter(file => file.key !== this.state.path)
+      .filter(file => R.startsWith(path, file.key))
+      .filter(file => file.key !== path)
       .map(file => {
         const is_folder = R.endsWith('/', file.key);
+
+        const name_arr = file.key.split('/');
+
+        const name = name_arr[is_folder ? name_arr.length - 2 : name_arr.length - 1];
 
         return (<TouchableOpacity
           key={file.key}
@@ -78,7 +83,7 @@ class FilesScreen extends React.Component {
               ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
               : <MaterialCommunityIcons name='file' size={32} color='grey' />
           }
-          <Text style={styles.filename}>{file.key}</Text>
+          <Text style={styles.filename}>{name}</Text>
           <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
         </TouchableOpacity>)
       });
@@ -86,7 +91,7 @@ class FilesScreen extends React.Component {
 
   onItemClick(path, is_folder) {
     if (is_folder) {
-      this.setState({ path });
+      this.props.navigation.push('Files', { path });
     } else {
       console.log(path);
     }
