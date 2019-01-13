@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Platform, AlertIOS } from 'react-native';
 import { Storage } from 'aws-amplify';
 import { ImagePicker, Permissions } from 'expo';
 import { Buffer } from 'buffer';
@@ -89,6 +89,39 @@ class FilesScreen extends React.Component {
     }
   }
 
+  addFolder = async () => {
+    const access = { level: "private" };
+    const path = this.props.navigation.getParam('path') || '';
+    name = 'new_folder';
+
+    if (Platform.OS === 'ios') {
+      AlertIOS.prompt(
+        'Add Folder',
+        'Enter folder name',
+        [
+          {
+            text: 'Cancel',
+            // onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: async name => {
+              await Storage.put(`${path}${name}/`, '', access);
+              this.props.getS3List();
+            }
+          },
+        ]
+      );
+
+    } else {
+      await Storage.put(`${path}${name}/`, '', access);
+      this.props.getS3List();
+    }
+
+
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -100,6 +133,12 @@ class FilesScreen extends React.Component {
           style={styles.addFileBtn}
         >
           <MaterialCommunityIcons name='file-upload' size={32} color='blue' />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={this.addFolder}
+          style={styles.addFileBtn}
+        >
+          <MaterialCommunityIcons name='folder-plus' size={32} color='blue' />
         </TouchableOpacity>
       </View>
     );
