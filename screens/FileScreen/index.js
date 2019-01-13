@@ -36,12 +36,13 @@ class FilesScreen extends React.Component {
 
   // this handles the image upload to S3
   _handleImagePicked = async (pickerResult) => {
-    const imageName = pickerResult.uri.replace(/^.*[\\\/]/, '');
     const access = { level: "private", contentType: 'image/jpeg' };
     const imageData = await fetch(pickerResult.uri);
     const blobData = await imageData.blob();
     const encoded = URL.createObjectURL(blobData);
     const s3data = new Buffer(encoded, 'base64');
+    const path = this.props.navigation.getParam('path') || '';
+    const imageName = path + pickerResult.uri.replace(/^.*[\\\/]/, '');
 
     try {
       await Storage.put(imageName, s3data, access);
@@ -49,15 +50,6 @@ class FilesScreen extends React.Component {
     } catch (err) {
       console.log('error: ', err)
     }
-  }
-
-  async addFile() {
-    const options = {
-      mediaTypes: 'All',
-      allowsEditing: true
-    };
-
-    const { uri } = await ImagePicker.launchImageLibraryAsync(options);
   }
 
   renderList() {
