@@ -1,7 +1,9 @@
 import React from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Platform, AlertIOS } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Platform, AlertIOS, Animated } from 'react-native';
 import { Storage } from 'aws-amplify';
-import { ImagePicker, Permissions } from 'expo';
+import { ImagePicker, Permissions, GestureHandler } from 'expo';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { RectButton } from 'react-native-gesture-handler';
 import { Buffer } from 'buffer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
@@ -52,6 +54,24 @@ class FilesScreen extends React.Component {
     }
   }
 
+  renderRightActions = (progress, dragX) => {
+    const trans = dragX.interpolate({
+      inputRange: [0, 50, 100, 101],
+      outputRange: [-20, 0, 0, 1],
+    });
+    return (
+      <View style={styles.editDeleteContainer}>
+        <RectButton onPress={this.close} style={[styles.swippedEdit, styles.swippedButtons]}>
+          <MaterialCommunityIcons name='square-edit-outline' size={22} color='white' />
+        </RectButton>
+
+        <RectButton onPress={this.close} style={[styles.swippedDelete, styles.swippedButtons]}>
+          <MaterialCommunityIcons name='delete' size={22} color='white' />
+        </RectButton>
+      </View>
+    );
+  };
+
   renderList() {
     const path = this.props.navigation.getParam('path') || '';
 
@@ -65,19 +85,24 @@ class FilesScreen extends React.Component {
 
         const name = name_arr[is_folder ? name_arr.length - 2 : name_arr.length - 1];
 
-        return (<TouchableOpacity
-          key={file.key}
-          style={styles.listItem}
-          onPress={() => this.onItemClick(file.key, is_folder)}
-        >
-          {
-            is_folder
-              ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
-              : <MaterialCommunityIcons name='file' size={32} color='grey' />
-          }
-          <Text style={styles.filename}>{name}</Text>
-          <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
-        </TouchableOpacity>)
+        return (
+          <Swipeable
+            key={file.key}
+            renderRightActions={this.renderRightActions}>
+            <TouchableOpacity
+              style={styles.listItem}
+              onPress={() => this.onItemClick(file.key, is_folder)}
+            >
+              {
+                is_folder
+                  ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
+                  : <MaterialCommunityIcons name='file' size={32} color='grey' />
+              }
+              <Text style={styles.filename}>{name}</Text>
+              <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
+            </TouchableOpacity>
+          </Swipeable>
+        )
       });
   }
 

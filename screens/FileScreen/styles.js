@@ -17,7 +17,8 @@ export default StyleSheet.create({
     padding: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'white'
   },
   filename: {
     flex: 4,
@@ -28,5 +29,22 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center'
+  },
+  editDeleteContainer: {
+    flexDirection: 'row'
+  },
+  swippedEdit: {
+    backgroundColor: 'blue',
+  },
+  swippedDelete: {
+    backgroundColor: 'red',
+  },
+  swippedButtons: {
+    width: 60,
+    padding: 10,
+    color: 'white',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
+
 });
