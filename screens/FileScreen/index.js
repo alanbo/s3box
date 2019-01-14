@@ -128,18 +128,20 @@ class FilesScreen extends React.Component {
         <ScrollView>
           {this.renderList()}
         </ScrollView>
-        <TouchableOpacity
-          onPress={this._pickImage}
-          style={styles.addFileBtn}
-        >
-          <MaterialCommunityIcons name='file-upload' size={32} color='blue' />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={this.addFolder}
-          style={styles.addFileBtn}
-        >
-          <MaterialCommunityIcons name='folder-plus' size={32} color='blue' />
-        </TouchableOpacity>
+        <View style={styles.toolboxContainer}>
+          <TouchableOpacity
+            onPress={this._pickImage}
+            style={styles.addFileBtn}
+          >
+            <MaterialCommunityIcons name='file-upload' size={32} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.addFolder}
+            style={styles.addFileBtn}
+          >
+            <MaterialCommunityIcons name='folder-plus' size={32} />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

@@ -23,5 +23,10 @@ export default StyleSheet.create({
     flex: 4,
     paddingLeft: 20,
     paddingRight: 20
+  },
+  toolboxContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center'
   }
 });
