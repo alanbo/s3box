@@ -7,7 +7,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import { Buffer } from 'buffer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
-import { getS3List } from '../../redux/actions';
+import { getS3List, deleteObjects } from '../../redux/actions';
 import styles from './styles';
 import * as R from 'ramda';
 
@@ -29,7 +29,7 @@ class FilesScreen extends React.Component {
     } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (cameraRollPerm === 'granted') {
       let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
+        allowsEditing: false,
         aspect: [4, 3],
       });
       this._handleImagePicked(pickerResult);
@@ -54,18 +54,17 @@ class FilesScreen extends React.Component {
     }
   }
 
-  renderRightActions = (progress, dragX) => {
-    const trans = dragX.interpolate({
-      inputRange: [0, 50, 100, 101],
-      outputRange: [-20, 0, 0, 1],
-    });
+  renderRightActions = key => {
     return (
       <View style={styles.editDeleteContainer}>
         <RectButton onPress={this.close} style={[styles.swippedEdit, styles.swippedButtons]}>
           <MaterialCommunityIcons name='square-edit-outline' size={22} color='white' />
         </RectButton>
 
-        <RectButton onPress={this.close} style={[styles.swippedDelete, styles.swippedButtons]}>
+        <RectButton
+          onPress={() => this.props.deleteObjects([key])}
+          style={[styles.swippedDelete, styles.swippedButtons]}
+        >
           <MaterialCommunityIcons name='delete' size={22} color='white' />
         </RectButton>
       </View>
@@ -88,7 +87,7 @@ class FilesScreen extends React.Component {
         return (
           <Swipeable
             key={file.key}
-            renderRightActions={this.renderRightActions}>
+            renderRightActions={() => this.renderRightActions(file.key)}>
             <TouchableOpacity
               style={styles.listItem}
               onPress={() => this.onItemClick(file.key, is_folder)}
@@ -178,5 +177,5 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, { getS3List })(FilesScreen);
+export default connect(mapStateToProps, { getS3List, deleteObjects })(FilesScreen);
 
