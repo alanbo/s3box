@@ -4,10 +4,9 @@ import { Storage } from 'aws-amplify';
 import { ImagePicker, Permissions, GestureHandler } from 'expo';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButton } from 'react-native-gesture-handler';
-import { Buffer } from 'buffer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
-import { getS3List, deleteObjects } from '../../redux/actions';
+import { getS3List, deleteObjects, uploadFile } from '../../redux/actions';
 import styles from './styles';
 import * as R from 'ramda';
 
@@ -37,21 +36,10 @@ class FilesScreen extends React.Component {
   };
 
   // this handles the image upload to S3
-  _handleImagePicked = async (pickerResult) => {
-    const access = { level: "private", contentType: 'image/jpeg' };
-    const imageData = await fetch(pickerResult.uri);
-    const blobData = await imageData.blob();
-    const encoded = URL.createObjectURL(blobData);
-    const s3data = new Buffer(encoded, 'base64');
+  _handleImagePicked = ({ uri }) => {
     const path = this.props.navigation.getParam('path') || '';
-    const imageName = path + pickerResult.uri.replace(/^.*[\\\/]/, '');
 
-    try {
-      await Storage.put(imageName, s3data, access);
-      this.props.getS3List();
-    } catch (err) {
-      console.log('error: ', err)
-    }
+    this.props.uploadFile(uri, path);
   }
 
   renderRightActions = key => {
@@ -84,6 +72,16 @@ class FilesScreen extends React.Component {
 
         const name = name_arr[is_folder ? name_arr.length - 2 : name_arr.length - 1];
 
+        let size_string = '';
+
+        if (file.size >= 1048576) {
+          size_string = `${Math.round(file.size / 1048576)}MB`;
+        } else if (file.size >= 1024) {
+          size_string = `${Math.round(file.size / 1024)}kB`;
+        } else {
+          size_string = `${file.size}B`;
+        }
+
         return (
           <Swipeable
             key={file.key}
@@ -98,7 +96,7 @@ class FilesScreen extends React.Component {
                   : <MaterialCommunityIcons name='file' size={32} color='grey' />
               }
               <Text style={styles.filename}>{name}</Text>
-              <Text>{`${Math.round(file.size / 1000)}kB`}</Text>
+              <Text>{size_string}</Text>
             </TouchableOpacity>
           </Swipeable>
         )
@@ -177,5 +175,5 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, { getS3List, deleteObjects })(FilesScreen);
+export default connect(mapStateToProps, { getS3List, deleteObjects, uploadFile })(FilesScreen);
 

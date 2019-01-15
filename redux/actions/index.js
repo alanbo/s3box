@@ -3,7 +3,8 @@ import * as R from 'ramda';
 
 import {
   get_s3_list,
-  delete_objects
+  delete_objects,
+  upload_file
 } from './types';
 
 export const getS3List = () => dispatch => {
@@ -42,4 +43,37 @@ export const deleteObjects = paths => dispatch => {
 
       console.log(err);
     });
+}
+
+export const uploadFile = (uri, path) => async dispatch => {
+  const access = { level: "private", contentType: 'image/jpeg' };
+
+  // https://github.com/expo/expo/issues/2402
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      resolve(xhr.response); // when BlobModule finishes reading, resolve with the blob
+    };
+    xhr.onerror = function () {
+      reject(new TypeError('Network request failed')); // error occurred, rejecting
+    };
+    xhr.responseType = 'blob'; // use BlobModule's UriHandler
+    xhr.open('GET', uri, true); // fetch the blob from uri in async mode
+    xhr.send(null); // no initial data
+  });
+
+  const imageName = path + uri.replace(/^.*[\\\/]/, '');
+
+  try {
+    let uploaded = await Storage.put(imageName, blob, access);
+    uploaded = R.assoc('size', blob.size, uploaded);
+    blob.close();
+
+    dispatch({
+      type: upload_file,
+      payload: R.assoc('lastModified', +(new Date()), uploaded)
+    })
+  } catch (err) {
+    console.log('error: ', err)
+  }
 }
