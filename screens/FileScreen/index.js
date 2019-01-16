@@ -28,7 +28,7 @@ class FilesScreen extends React.Component {
     } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (cameraRollPerm === 'granted') {
       let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: false,
+        allowsEditing: true,
         aspect: [4, 3],
       });
       this._handleImagePicked(pickerResult);
@@ -78,7 +78,7 @@ class FilesScreen extends React.Component {
           size_string = `${Math.round(file.size / 1048576)}MB`;
         } else if (file.size >= 1024) {
           size_string = `${Math.round(file.size / 1024)}kB`;
-        } else {
+        } else if (!is_folder) {
           size_string = `${file.size}B`;
         }
 
