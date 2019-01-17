@@ -20,6 +20,9 @@ export default StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white'
   },
+  listItemHighlighted: {
+    backgroundColor: '#87CEFA'
+  },
   filename: {
     flex: 4,
     paddingLeft: 20,
