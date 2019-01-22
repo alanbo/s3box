@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Platform, AlertIOS, Animated } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Platform, Alert, AlertIOS, Animated } from 'react-native';
 import { Storage } from 'aws-amplify';
 import { ImagePicker, Permissions, GestureHandler } from 'expo';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
@@ -18,6 +18,10 @@ class FilesScreen extends React.Component {
     };
   };
 
+  state = {
+    highlighted: {}
+  }
+
   async componentDidMount() {
     this.props.getS3List();
   }
@@ -28,7 +32,7 @@ class FilesScreen extends React.Component {
     } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (cameraRollPerm === 'granted') {
       let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: false,
+        allowsEditing: true,
         aspect: [4, 3],
       });
       this._handleImagePicked(pickerResult);
@@ -40,6 +44,12 @@ class FilesScreen extends React.Component {
     const path = this.props.navigation.getParam('path') || '';
 
     this.props.uploadFile(uri, path);
+  }
+
+  clearSelection = () => {
+    this.setState({
+      highlighted: {}
+    });
   }
 
   renderRightActions = key => {
@@ -78,32 +88,64 @@ class FilesScreen extends React.Component {
           size_string = `${Math.round(file.size / 1048576)}MB`;
         } else if (file.size >= 1024) {
           size_string = `${Math.round(file.size / 1024)}kB`;
-        } else {
+        } else if (!is_folder) {
           size_string = `${file.size}B`;
         }
 
+        const longPressRef = React.createRef();
+        const swipeRef = React.createRef();
+        const is_highlighted = !!this.state.highlighted[file.key];
+
         return (
-          <Swipeable
+          <GestureHandler.LongPressGestureHandler
             key={file.key}
-            renderRightActions={() => this.renderRightActions(file.key)}>
-            <TouchableOpacity
-              style={styles.listItem}
-              onPress={() => this.onItemClick(file.key, is_folder)}
-            >
-              {
-                is_folder
-                  ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
-                  : <MaterialCommunityIcons name='file' size={32} color='grey' />
+            ref={longPressRef}
+            simultaneousHandlers={swipeRef}
+            onHandlerStateChange={({ nativeEvent }) => {
+              if (nativeEvent.oldState) {
+                return;
               }
-              <Text style={styles.filename}>{name}</Text>
-              <Text>{size_string}</Text>
-            </TouchableOpacity>
-          </Swipeable>
+
+              if (is_highlighted) {
+                this.setState({
+                  highlighted: R.dissoc(file.key, this.state.highlighted)
+                })
+              } else {
+                this.setState({
+                  highlighted: R.assoc(file.key, true, this.state.highlighted)
+                })
+              }
+            }}
+            minDurationMs={800}>
+            <View>
+              <Swipeable
+                ref={swipeRef}
+                simultaneousHandlers={longPressRef}
+                renderRightActions={() => this.renderRightActions(file.key)}
+                onSwipeableRightOpen={this.clearSelection}
+              >
+                <TouchableOpacity
+                  style={[styles.listItem, is_highlighted && styles.listItemHighlighted]}
+                  onPress={() => this.onItemClick(file.key, is_folder)}
+                >
+                  {
+                    is_folder
+                      ? <MaterialCommunityIcons name='folder' size={32} color='grey' />
+                      : <MaterialCommunityIcons name='file' size={32} color='grey' />
+                  }
+                  <Text style={styles.filename}>{name}</Text>
+                  <Text>{size_string}</Text>
+                </TouchableOpacity>
+              </Swipeable>
+            </View>
+          </ GestureHandler.LongPressGestureHandler>
         )
       });
   }
 
   onItemClick(path, is_folder) {
+    this.clearSelection();
+
     if (is_folder) {
       this.props.navigation.push('Files', { path });
     } else {
