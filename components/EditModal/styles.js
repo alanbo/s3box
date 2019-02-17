@@ -11,6 +11,18 @@ export default StyleSheet.create({
 		flex: 1
 	},
 
+	editButton: {
+		padding: 10
+	},
+
+	editButtonText: {
+		fontSize: 20
+	},
+
+	editButtonTextCancel: {
+		color: 'red'
+	},
+
 	hide: {
 	}
 });
