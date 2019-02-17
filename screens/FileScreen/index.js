@@ -7,8 +7,10 @@ import { RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
 import { getS3List, deleteObjects, uploadFile } from '../../redux/actions';
+import EditModal from '../../components/EditModal';
 import styles from './styles';
 import * as R from 'ramda';
+
 
 class FilesScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -19,7 +21,8 @@ class FilesScreen extends React.Component {
   };
 
   state = {
-    highlighted: {}
+    highlighted: {},
+    modalVisible: false,
   }
 
   async componentDidMount() {
@@ -55,7 +58,10 @@ class FilesScreen extends React.Component {
   renderRightActions = key => {
     return (
       <View style={styles.editDeleteContainer}>
-        <RectButton onPress={this.close} style={[styles.swippedEdit, styles.swippedButtons]}>
+        <RectButton
+          onPress={() => this.setState({ modalVisible: key })}
+          style={[styles.swippedEdit, styles.swippedButtons]}
+        >
           <MaterialCommunityIcons name='square-edit-outline' size={22} color='white' />
         </RectButton>
 
@@ -206,6 +212,10 @@ class FilesScreen extends React.Component {
             <MaterialCommunityIcons name='folder-plus' size={32} />
           </TouchableOpacity>
         </View>
+        <EditModal
+          modalVisible={this.state.modalVisible}
+          onHidePress={() => this.setState({ modalVisible: false })}
+        />
       </View>
     );
   }
